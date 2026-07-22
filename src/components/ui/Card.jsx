@@ -1,4 +1,4 @@
-export default function Card({ children, className = '', glass = false, hoverable = false }) {
+export default function Card({ children, className = '', glass = false, hoverable = false, style }) {
   return (
     <div
       className={`
@@ -11,6 +11,7 @@ export default function Card({ children, className = '', glass = false, hoverabl
         ${hoverable ? 'hover:-translate-y-1 hover:shadow-[var(--shadow-md)] cursor-pointer' : ''}
         ${className}
       `}
+      style={style}
     >
       {children}
     </div>
