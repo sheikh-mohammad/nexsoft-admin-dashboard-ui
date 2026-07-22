@@ -117,3 +117,83 @@ After each phase, run `npm run dev` and verify:
 - **Phase E:** All 3 chart types render and respond to theme toggle
 - **Phase F:** 4 StatCards + 3 ChartCards display mock data, entrance animations play
 - **Phase G:** Final build succeeds (`npm run build`), no console errors, theme persists on refresh
+
+---
+
+# Phase H: Bug Fixes & Navigation — Implementation Plan
+
+## Context
+
+The dashboard is built but has critical issues:
+1. **Chart crash** — CSS `var()` strings passed to Chart.js options crash because the Canvas 2D API cannot resolve CSS custom properties. All three charts show "Chart Error."
+2. **No page routing** — Sidebar nav items (Analytics, Users, Orders, Settings) don't switch content; only visual state changes.
+3. **No dropdowns** — Notification bell and profile avatar have no click behavior.
+4. **Dark/light chart colors** — Chart text, grid lines, tooltips don't update when theme toggles because colors are hardcoded strings.
+
+## Implementation Plan
+
+### Track A: Chart Fixes — CSS Var Resolution
+
+**Root cause:** Chart.js uses the Canvas 2D API which only accepts concrete color values. Strings like `'var(--color-text-muted)'` cause a `DOMException` crash.
+
+**Solution:** Resolve CSS custom properties to computed values at runtime via `getComputedStyle`, then use those resolved values in Chart.js options. Re-compute when theme changes.
+
+| Step | File | Action |
+|------|------|--------|
+| H1 | `src/utils/cssVarResolver.js` | **NEW** — Utility to resolve CSS custom properties to computed hex/rgba values via `getComputedStyle(document.documentElement).getPropertyValue(name)` |
+| H2 | `src/hooks/useThemeColors.js` | **NEW** — Hook that returns memoized resolved color values, re-computes when `theme` changes |
+| H3 | `src/components/charts/LineChart.jsx` | **MODIFY** — Remove `useTheme` import, use `useThemeColors` instead. Replace all `'var(--color-*)'` strings with `colors.*` properties. Fix gradient fill callback. |
+| H4 | `src/components/charts/DoughnutChart.jsx` | **MODIFY** — Same fix as LineChart |
+| H5 | `src/components/charts/BarChart.jsx` | **MODIFY** — Same fix as LineChart |
+
+### Track B: Dropdowns — Notification & Profile
+
+| Step | File | Action |
+|------|------|--------|
+| H6 | `src/hooks/useClickOutside.js` | **NEW** — Hook that detects clicks outside a ref + Escape key to close dropdowns. Supports multiple refs and conditional enabling. |
+| H7 | `src/components/layout/Header.jsx` | **MODIFY** — Add notification dropdown (3 sample notifications with icons, timestamps) and profile dropdown (Profile/Settings/Logout). Use `useClickOutside` for closing. Accept `pageTitle` prop. |
+
+### Track C: Navigation — Page Routing
+
+| Step | File | Action |
+|------|------|--------|
+| H8 | `src/context/NavigationContext.jsx` | **NEW** — Context with `currentPage` state, `navigateTo(page)` function, `PAGES` constant (DASHBOARD, ANALYTICS, USERS, ORDERS, SETTINGS). No react-router. |
+| H9 | `src/pages/Analytics.jsx` | **NEW** — Analytics page with 3 stat cards (Page Views, Bounce Rate, Avg. Session) |
+| H10 | `src/pages/Users.jsx` | **NEW** — Users page with EmptyState placeholder |
+| H11 | `src/pages/Orders.jsx` | **NEW** — Orders page with EmptyState placeholder |
+| H12 | `src/pages/Settings.jsx` | **NEW** — Settings page with 3 setting cards (Appearance, Notifications, Security) |
+| H13 | `src/components/layout/Sidebar.jsx` | **MODIFY** — Replace local `activeItem` state with `currentPage`/`navigateTo` from `useNavigation()`. Close mobile sidebar on nav click. |
+| H14 | `src/components/layout/Layout.jsx` | **MODIFY** — Wrap in `NavigationProvider`. Create `LayoutContent` inner component that reads `currentPage` and renders the matching page. Pass `pageTitle` to Header. Remove `children` dependency. |
+| H15 | `src/App.jsx` | **MODIFY** — Remove `<Dashboard />` children from Layout. Layout now handles page rendering internally. |
+
+## Color Resolution Pattern
+
+```js
+// cssVarResolver.js
+export function resolveCSSVar(varName, fallback = '#000000') {
+  const name = varName.replace(/^var\(/, '').replace(/\)$/, '').trim()
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  return value || fallback
+}
+
+// useThemeColors.js
+export function useThemeColors() {
+  const { theme } = useTheme()
+  return useMemo(() => ({
+    textColor: resolveCSSVar('--color-text-muted'),
+    primaryColor: resolveCSSVar('--color-primary'),
+    surfaceColor: resolveCSSVar('--color-surface'),
+    // ... all other color vars
+  }), [theme])
+}
+```
+
+## Verification
+
+1. `npm run build` — must succeed with zero errors
+2. Open app — charts render without "Chart Error" fallback
+3. Toggle dark/light mode — chart legend, axis ticks, grid lines, tooltips update immediately
+4. Click each sidebar nav item — corresponding page renders with animation
+5. Click notification bell — dropdown opens; close by outside click, Escape, or item selection
+6. Click profile avatar — dropdown opens with Profile (navigates), Settings (navigates), Logout
+7. Mobile: nav item click closes sidebar and switches page

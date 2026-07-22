@@ -38,3 +38,26 @@
 - [x] Update `index.html` title
 - [x] Delete `src/App.css`
 - [x] `npm run build` — verify build succeeds
+
+---
+
+## Phase H: Chart Fixes — CSS Var Resolution
+- [ ] Create `src/utils/cssVarResolver.js` (resolve CSS vars to computed values)
+- [ ] Create `src/hooks/useThemeColors.js` (memoized resolved colors, reacts to theme)
+- [ ] Fix `src/components/charts/LineChart.jsx` — use resolved colors
+- [ ] Fix `src/components/charts/DoughnutChart.jsx` — use resolved colors
+- [ ] Fix `src/components/charts/BarChart.jsx` — use resolved colors
+
+## Phase I: Dropdowns — Notification & Profile
+- [ ] Create `src/hooks/useClickOutside.js` (outside click + Escape to close)
+- [ ] Update `src/components/layout/Header.jsx` — add dropdowns + dynamic pageTitle prop
+
+## Phase J: Navigation — Page Routing
+- [ ] Create `src/context/NavigationContext.jsx` (page state, navigateTo, PAGES constant)
+- [ ] Create `src/pages/Analytics.jsx` (analytics stat cards)
+- [ ] Create `src/pages/Users.jsx` (EmptyState placeholder)
+- [ ] Create `src/pages/Orders.jsx` (EmptyState placeholder)
+- [ ] Create `src/pages/Settings.jsx` (setting cards)
+- [ ] Update `src/components/layout/Sidebar.jsx` — connect to NavigationContext
+- [ ] Update `src/components/layout/Layout.jsx` — integrate NavigationProvider + page rendering
+- [ ] Update `src/App.jsx` — simplify, Layout handles page rendering

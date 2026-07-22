@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import {
   LayoutDashboard, BarChart3, Users, ShoppingCart, Settings,
   ChevronLeft, ChevronRight, LogOut, X
 } from 'lucide-react'
+import { useNavigation } from '../../context/NavigationContext'
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -13,7 +13,7 @@ const navItems = [
 ]
 
 export default function Sidebar({ mobileOpen, collapsed, isDesktop, onClose, onToggleCollapse }) {
-  const [activeItem, setActiveItem] = useState('dashboard')
+  const { currentPage, navigateTo } = useNavigation()
 
   const sidebarClasses = `
     fixed lg:static inset-y-0 left-0 z-30 flex flex-col
@@ -47,11 +47,14 @@ export default function Sidebar({ mobileOpen, collapsed, isDesktop, onClose, onT
       <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
         {navItems.map(item => {
           const Icon = item.icon
-          const isActive = activeItem === item.id
+          const isActive = currentPage === item.id
           return (
             <button
               key={item.id}
-              onClick={() => setActiveItem(item.id)}
+              onClick={() => {
+                navigateTo(item.id)
+                if (!isDesktop) onClose()
+              }}
               className={`
                 w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
                 transition-all duration-200 group relative
@@ -77,7 +80,6 @@ export default function Sidebar({ mobileOpen, collapsed, isDesktop, onClose, onT
 
       {/* Bottom Section */}
       <div className={`p-3 border-t border-white/10 space-y-1 ${collapsed && isDesktop ? 'flex flex-col items-center' : ''}`}>
-        {/* Collapse toggle — desktop only */}
         {isDesktop && (
           <button
             onClick={onToggleCollapse}

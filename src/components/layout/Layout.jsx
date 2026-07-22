@@ -2,18 +2,41 @@ import { useState, useEffect, useCallback } from 'react'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
+import { NavigationProvider, useNavigation, PAGES } from '../../context/NavigationContext'
+import Dashboard from '../../pages/Dashboard'
+import Analytics from '../../pages/Analytics'
+import Users from '../../pages/Users'
+import Orders from '../../pages/Orders'
+import Settings from '../../pages/Settings'
 
-export default function Layout({ children }) {
+const pageComponents = {
+  [PAGES.DASHBOARD]: Dashboard,
+  [PAGES.ANALYTICS]: Analytics,
+  [PAGES.USERS]: Users,
+  [PAGES.ORDERS]: Orders,
+  [PAGES.SETTINGS]: Settings,
+}
+
+const pageTitles = {
+  [PAGES.DASHBOARD]: 'Dashboard',
+  [PAGES.ANALYTICS]: 'Analytics',
+  [PAGES.USERS]: 'Users',
+  [PAGES.ORDERS]: 'Orders',
+  [PAGES.SETTINGS]: 'Settings',
+}
+
+function LayoutContent() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const isDesktop = useMediaQuery('(min-width: 1024px)')
+  const { currentPage } = useNavigation()
 
-  // Close mobile sidebar when window resizes to desktop
+  const PageComponent = pageComponents[currentPage] || Dashboard
+
   useEffect(() => {
     if (isDesktop) setMobileOpen(false)
   }, [isDesktop])
 
-  // Lock body scroll when mobile sidebar is open
   useEffect(() => {
     if (mobileOpen && !isDesktop) {
       document.body.style.overflow = 'hidden'
@@ -23,7 +46,6 @@ export default function Layout({ children }) {
     return () => { document.body.style.overflow = '' }
   }, [mobileOpen, isDesktop])
 
-  // Close mobile sidebar on Escape key
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Escape') setMobileOpen(false)
   }, [])
@@ -45,7 +67,6 @@ export default function Layout({ children }) {
         onToggleCollapse={() => setCollapsed(c => !c)}
       />
 
-      {/* Backdrop — mobile overlay */}
       {mobileOpen && !isDesktop && (
         <div
           className="fixed inset-0 bg-black/50 z-20 animate-fadeIn lg:hidden"
@@ -53,13 +74,23 @@ export default function Layout({ children }) {
         />
       )}
 
-      {/* Main Content Area */}
       <div className="flex flex-col flex-1 min-w-0">
-        <Header onMenuClick={() => setMobileOpen(true)} />
+        <Header
+          onMenuClick={() => setMobileOpen(true)}
+          pageTitle={pageTitles[currentPage]}
+        />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          {children}
+          <PageComponent />
         </main>
       </div>
     </div>
+  )
+}
+
+export default function Layout() {
+  return (
+    <NavigationProvider>
+      <LayoutContent />
+    </NavigationProvider>
   )
 }
