@@ -8,6 +8,7 @@ import Analytics from '../../pages/Analytics'
 import Users from '../../pages/Users'
 import Orders from '../../pages/Orders'
 import Settings from '../../pages/Settings'
+import Notifications from '../../pages/Notifications'
 
 const pageComponents = {
   [PAGES.DASHBOARD]: Dashboard,
@@ -15,6 +16,7 @@ const pageComponents = {
   [PAGES.USERS]: Users,
   [PAGES.ORDERS]: Orders,
   [PAGES.SETTINGS]: Settings,
+  [PAGES.NOTIFICATIONS]: Notifications,
 }
 
 const pageTitles = {
@@ -23,6 +25,7 @@ const pageTitles = {
   [PAGES.USERS]: 'Users',
   [PAGES.ORDERS]: 'Orders',
   [PAGES.SETTINGS]: 'Settings',
+  [PAGES.NOTIFICATIONS]: 'Notifications',
 }
 
 function LayoutContent() {

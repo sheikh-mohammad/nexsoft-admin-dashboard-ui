@@ -8,6 +8,7 @@ export const PAGES = {
   USERS: 'users',
   ORDERS: 'orders',
   SETTINGS: 'settings',
+  NOTIFICATIONS: 'notifications',
 }
 
 export function NavigationProvider({ children }) {

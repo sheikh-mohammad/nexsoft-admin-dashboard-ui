@@ -3,17 +3,20 @@ import { Menu, Search, Bell, Moon, Sun, X, CheckCircle, AlertTriangle, Info, Use
 import { useTheme } from '../../context/ThemeContext'
 import { useNavigation, PAGES } from '../../context/NavigationContext'
 import useClickOutside from '../../hooks/useClickOutside'
+import { notifications as notificationData } from '../../data/notificationsData'
 
-const notifications = [
-  { id: 1, type: 'success', icon: CheckCircle, title: 'Order completed', message: 'Order #1234 has been delivered', time: '2 min ago' },
-  { id: 2, type: 'warning', icon: AlertTriangle, title: 'Low inventory', message: 'Product "Wireless Headphones" is running low', time: '1 hour ago' },
-  { id: 3, type: 'info', icon: Info, title: 'New user registered', message: 'John Doe has created an account', time: '3 hours ago' },
-]
+const iconMap = {
+  success: CheckCircle,
+  warning: AlertTriangle,
+  info: Info,
+  error: AlertTriangle,
+}
 
 const iconColorMap = {
   success: 'text-[var(--color-success)]',
   warning: 'text-[var(--color-warning)]',
   info: 'text-[var(--color-primary)]',
+  error: 'text-[var(--color-error)]',
 }
 
 export default function Header({ onMenuClick, pageTitle = 'Dashboard' }) {
@@ -115,15 +118,15 @@ export default function Header({ onMenuClick, pageTitle = 'Dashboard' }) {
                 </button>
               </div>
               <div className="max-h-72 overflow-y-auto">
-                {notifications.map(n => {
-                  const Icon = n.icon
+                {notificationData.slice(0, 4).map(n => {
+                  const Icon = iconMap[n.type] || Info
                   return (
                     <button
                       key={n.id}
                       className="w-full flex items-start gap-3 px-4 py-3 hover:bg-[var(--color-bg-secondary)] transition-colors text-left"
                       onClick={() => setNotificationsOpen(false)}
                     >
-                      <Icon size={18} className={`mt-0.5 flex-shrink-0 ${iconColorMap[n.type]}`} />
+                      <Icon size={18} className={`mt-0.5 flex-shrink-0 ${iconColorMap[n.type] || 'text-[var(--color-text-muted)]'}`} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-[var(--color-text)]">{n.title}</p>
                         <p className="text-xs text-[var(--color-text-muted)] mt-0.5 truncate">{n.message}</p>
@@ -136,7 +139,10 @@ export default function Header({ onMenuClick, pageTitle = 'Dashboard' }) {
               <div className="border-t border-[var(--color-border)] p-2">
                 <button
                   className="w-full py-2 text-sm text-center text-[var(--color-primary)] hover:bg-[var(--color-primary-bg)] rounded-lg transition-colors"
-                  onClick={() => setNotificationsOpen(false)}
+                  onClick={() => {
+                    setNotificationsOpen(false)
+                    navigateTo(PAGES.NOTIFICATIONS)
+                  }}
                 >
                   View all notifications
                 </button>
