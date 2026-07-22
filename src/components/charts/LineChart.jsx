@@ -1,15 +1,10 @@
 import { useMemo } from 'react'
 import { Line } from 'react-chartjs-2'
-import { useTheme } from '../../context/ThemeContext'
+import { useThemeColors } from '../../hooks/useThemeColors'
 import './chartSetup.js'
 
-export default function LineChart({ data, height = 300, title }) {
-  const { theme } = useTheme()
-
-  const textColor = 'var(--color-text-muted)'
-  const borderColor = 'var(--color-border)'
-  const primaryColor = 'var(--color-primary)'
-  const primaryLight = 'var(--color-primary-light)'
+export default function LineChart({ data, height = 300 }) {
+  const colors = useThemeColors()
 
   const options = useMemo(() => ({
     responsive: true,
@@ -18,7 +13,7 @@ export default function LineChart({ data, height = 300, title }) {
       legend: {
         display: true,
         labels: {
-          color: textColor,
+          color: colors.textColor,
           font: { size: 12, family: "'Inter', sans-serif" },
           usePointStyle: true,
           pointStyle: 'circle',
@@ -26,10 +21,10 @@ export default function LineChart({ data, height = 300, title }) {
         },
       },
       tooltip: {
-        backgroundColor: 'var(--color-surface)',
-        titleColor: 'var(--color-text)',
-        bodyColor: 'var(--color-text-secondary)',
-        borderColor: 'var(--color-border)',
+        backgroundColor: colors.surfaceColor,
+        titleColor: colors.textPrimary,
+        bodyColor: colors.textSecondary,
+        borderColor: colors.borderColor,
         borderWidth: 1,
         padding: 12,
         cornerRadius: 8,
@@ -40,13 +35,13 @@ export default function LineChart({ data, height = 300, title }) {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: textColor, font: { size: 11 } },
+        ticks: { color: colors.textColor, font: { size: 11 } },
         border: { display: false },
       },
       y: {
-        grid: { color: borderColor, drawBorder: false },
+        grid: { color: colors.borderColor, drawBorder: false },
         ticks: {
-          color: textColor,
+          color: colors.textColor,
           font: { size: 11 },
           padding: 8,
         },
@@ -66,7 +61,7 @@ export default function LineChart({ data, height = 300, title }) {
         hitRadius: 8,
       },
     },
-  }), [theme])
+  }), [colors])
 
   const chartData = useMemo(() => ({
     labels: data.labels,
@@ -74,35 +69,35 @@ export default function LineChart({ data, height = 300, title }) {
       {
         label: 'Current Year',
         data: data.currentYear,
-        borderColor: primaryColor,
+        borderColor: colors.primaryColor,
         backgroundColor: (ctx) => {
-          if (!ctx.chart?.ctx) return 'rgba(107, 15, 26, 0.1)'
+          if (!ctx.chart?.ctx) return colors.primaryColor
           const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300)
-          gradient.addColorStop(0, primaryColor)
+          gradient.addColorStop(0, colors.primaryColor)
           gradient.addColorStop(1, 'transparent')
           return gradient
         },
         fill: true,
         borderWidth: 2.5,
-        pointBackgroundColor: primaryColor,
-        pointBorderColor: 'var(--color-surface)',
+        pointBackgroundColor: colors.primaryColor,
+        pointBorderColor: colors.surfaceColor,
         pointBorderWidth: 2,
       },
       {
         label: 'Previous Year',
         data: data.previousYear,
-        borderColor: primaryLight,
+        borderColor: colors.primaryLight,
         backgroundColor: 'transparent',
         fill: false,
         borderWidth: 2,
         borderDash: [5, 5],
-        pointBackgroundColor: primaryLight,
-        pointBorderColor: 'var(--color-surface)',
+        pointBackgroundColor: colors.primaryLight,
+        pointBorderColor: colors.surfaceColor,
         pointBorderWidth: 2,
         pointRadius: 2,
       },
     ],
-  }), [data, theme])
+  }), [data, colors])
 
   return (
     <div style={{ height }}>

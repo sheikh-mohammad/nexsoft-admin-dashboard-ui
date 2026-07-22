@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 import { Doughnut } from 'react-chartjs-2'
-import { useTheme } from '../../context/ThemeContext'
+import { useThemeColors } from '../../hooks/useThemeColors'
 import './chartSetup.js'
 
 export default function DoughnutChart({ data, height = 280, cutout = '70%' }) {
-  const { theme } = useTheme()
+  const colors = useThemeColors()
 
   const options = useMemo(() => ({
     responsive: true,
@@ -14,7 +14,7 @@ export default function DoughnutChart({ data, height = 280, cutout = '70%' }) {
       legend: {
         position: 'bottom',
         labels: {
-          color: 'var(--color-text-muted)',
+          color: colors.textColor,
           font: { size: 11, family: "'Inter', sans-serif" },
           usePointStyle: true,
           pointStyle: 'circle',
@@ -22,10 +22,10 @@ export default function DoughnutChart({ data, height = 280, cutout = '70%' }) {
         },
       },
       tooltip: {
-        backgroundColor: 'var(--color-surface)',
-        titleColor: 'var(--color-text)',
-        bodyColor: 'var(--color-text-secondary)',
-        borderColor: 'var(--color-border)',
+        backgroundColor: colors.surfaceColor,
+        titleColor: colors.textPrimary,
+        bodyColor: colors.textSecondary,
+        borderColor: colors.borderColor,
         borderWidth: 1,
         padding: 10,
         cornerRadius: 8,
@@ -34,7 +34,7 @@ export default function DoughnutChart({ data, height = 280, cutout = '70%' }) {
         },
       },
     },
-  }), [theme, cutout])
+  }), [colors, cutout])
 
   const chartData = useMemo(() => ({
     labels: data.labels,
@@ -44,12 +44,12 @@ export default function DoughnutChart({ data, height = 280, cutout = '70%' }) {
         backgroundColor: data.colors || [
           '#6B0F1A', '#8B1A2B', '#A52A3A', '#C04050', '#D46070', '#E8D5D0',
         ],
-        borderColor: 'var(--color-surface)',
+        borderColor: colors.surfaceColor,
         borderWidth: 3,
         hoverOffset: 8,
       },
     ],
-  }), [data, theme])
+  }), [data, colors])
 
   if (!data || !data.labels || data.labels.length === 0) {
     return (
